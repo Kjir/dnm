@@ -15,9 +15,11 @@ customers = {
         2: ("Alice", "Devecchi", "Via L. Battiferri, 15", datetime.date(2011, 10, 10), 0.00),
         3: ("Stéphane", "Bisinger", "Viale XXV Aprile, 19", datetime.date(2011, 11, 21), -30.00),
         4: ("Arnaldo", "Lomuti", "Via Fadèn Telcul, 24", datetime.date(2011, 10, 23), 50.00),
+        5: ("Michael", "Micheli", "Via Trasanni, 45", datetime.date(2011, 9, 4), 10.00),
+        6: ("Andrea", "Zanchetta", "Via Buonconte da Montefeltro, 11", datetime.date(2011, 9, 15), 1.00),
         }
 customers2 = {
-        1: ("Michele2", "Munno", "Via L. Battiferri, 15", datetime.date(2010, 10, 10), 0.00),
+        1: ("ZMichele2", "Munno", "Via L. Battiferri, 15", datetime.date(2010, 10, 10), 0.00),
         2: ("Alice2", "Devecchi", "Via L. Battiferri, 15", datetime.date(2011, 10, 10), 0.00),
         3: ("Stéphane2", "Bisinger", "Viale XXV Aprile, 19", datetime.date(2011, 11, 21), -30.00),
         4: ("Arnaldo2", "Lomuti", "Via Fadèn Telcul, 24", datetime.date(2011, 10, 23), 50.00),
@@ -34,7 +36,7 @@ class AWListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin, ColumnSorterMixin):
 
 class MainWindow(wx.Frame):
     def __init__(self, parent, title):
-        wx.Frame.__init__(self, parent, title=title, size=(800,500))
+        wx.Frame.__init__(self, parent, title=title, size=(1000,750))
         #self.control = wx.TextCtrl(self, style=wx.TE_MULTILINE)
         self.CreateStatusBar() # A Statusbar in the bottom of the window
 
@@ -64,10 +66,10 @@ class MainWindow(wx.Frame):
         self.panel = wx.Panel(self, -1)
         vbox = wx.BoxSizer(wx.VERTICAL)
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-        sb = wx.SearchCtrl(self.panel, -1)
-        sb.Bind(wx.EVT_TEXT, self.OnType)
-        sb.SetDescriptiveText("Cerca cliente...")
-        hbox1.Add(sb, 1)
+        self.sb = wx.SearchCtrl(self.panel, -1)
+        self.sb.Bind(wx.EVT_TEXT, self.OnType)
+        self.sb.SetDescriptiveText("Cerca cliente...")
+        hbox1.Add(self.sb, 1)
         vbox.Add(hbox1, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 10)
 
         vbox.Add((-1,10))
@@ -82,8 +84,7 @@ class MainWindow(wx.Frame):
         self.list.InsertColumn(3, "Cert.Med.", wx.LIST_FORMAT_RIGHT, width=90)
         self.list.InsertColumn(4, "Pagam.", wx.LIST_FORMAT_RIGHT, width=90)
         
-        #customers = self.getProblematicCustomers()
-        self.showCustomers(customers)
+        self.showCustomers(self.getProblematicCustomers())
 
         self.list.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OpenUser)
         vbox.Add(self.list, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.TOP, 10)
@@ -123,15 +124,27 @@ class MainWindow(wx.Frame):
             self.ic = customer.InsertCustomer(self)
 
     def OnType(self, event):
-        self.list.DeleteAllItems()
-        self.showCustomers(customers2)
+        if len(self.sb.GetValue()) > 1:
+            self.list.DeleteAllItems()
+            self.showCustomers(self.findCustomers(self.sb.GetValue()))
+        if len(self.sb.GetValue()) == 0:
+            self.list.DeleteAllItems()
+            self.showCustomers(self.getProblematicCustomers())
 
     def OpenUser(self, event):
-        d = wx.MessageDialog(self, self.list.GetItem(self.list.GetFocusedItem(), 1).GetText() + " Yeah", "Ducato Nuoto Manager", wx.OK)
+        index = self.list.GetFocusedItem()
+        d = wx.MessageDialog(self, str(self.list.GetItem(index, 0).GetData()) + " " + str(self.list.GetItem(index, 1).GetData()), "Ducato Nuoto Manager", wx.OK)
         d.ShowModal()
         d.Destroy()
 
+    def getProblematicCustomers(self):
+        return customers
+
+    def findCustomers(self, hint):
+        return customers2
+
     def showCustomers(self, dict):
+        self.list.itemDataMap = dict
         item = dict.items()
         for key, data in item:
             index = self.list.InsertStringItem(sys.maxint, data[0])
@@ -140,10 +153,12 @@ class MainWindow(wx.Frame):
             self.list.SetStringItem(index, 3, str(data[3]))
             self.list.SetStringItem(index, 4, str(data[4]))
             self.list.SetItemData(index, key)
-            if data[4] < 0 or data[3] <= datetime.date.today():
-                self.list.SetItemTextColour(index, "red")
+            if data[3] <= datetime.date.today():
+                self.list.SetItemBackgroundColour(index, "orange")
+            if data[4] < 0:
+                self.list.SetItemBackgroundColour(index, "red")
             if data[4] > 0:
-                self.list.SetItemTextColour(index, "green")
+                self.list.SetItemBackgroundColour(index, "green")
 
 
 app = wx.App(False)
