@@ -3,22 +3,28 @@
 
 import wx
 from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
+from wx.lib.mixins.listctrl import ColumnSorterMixin
 import os
 import sys
 import datetime
 
 import customer
 
-customers = [
-        ("Michele", "Munno", "Via L. Battiferri, 15", datetime.date(2010, 10, 10), 0.00),
-        ("Alice", "Devecchi", "Via L. Battiferri, 15", datetime.date(2011, 10, 10), 0.00),
-        ("Stéphane", "Bisinger", "Viale XXV Aprile, 19", datetime.date(2011, 11, 21), -30.00),
-        ("Arnaldo", "Lomuti", "Via Fadèn Telcul, 24", datetime.date(2011, 10, 23), 50.00),
-        ]
-class AWListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
+customers = {
+        1: ("Michele", "Munno", "Via L. Battiferri, 15", datetime.date(2010, 10, 10), 0.00),
+        2: ("Alice", "Devecchi", "Via L. Battiferri, 15", datetime.date(2011, 10, 10), 0.00),
+        3: ("Stéphane", "Bisinger", "Viale XXV Aprile, 19", datetime.date(2011, 11, 21), -30.00),
+        4: ("Arnaldo", "Lomuti", "Via Fadèn Telcul, 24", datetime.date(2011, 10, 23), 50.00),
+        }
+class AWListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin, ColumnSorterMixin):
     def __init__(self, parent, id, style):
         wx.ListCtrl.__init__(self, parent, id, style=style)
         ListCtrlAutoWidthMixin.__init__(self)
+        ColumnSorterMixin.__init__(self, 5)
+        self.itemDataMap = customers
+
+    def GetListCtrl(self):
+        return self
 
 class MainWindow(wx.Frame):
     def __init__(self, parent, title):
@@ -64,22 +70,25 @@ class MainWindow(wx.Frame):
         hbox2.Add(wx.StaticLine(self.panel), 1)
         vbox.Add(hbox2, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 10)
 
-        self.list = AWListCtrl(self.panel, -1, style=wx.LC_REPORT)
+        self.list = AWListCtrl(self.panel, -1, style=wx.LC_REPORT | wx.LC_HRULES)
         self.list.InsertColumn(0, "Nome", width=140)
         self.list.InsertColumn(1, "Cognome", width=140)
         self.list.InsertColumn(2, "Indirizzo", width=200)
         self.list.InsertColumn(3, "Cert.Med.", wx.LIST_FORMAT_RIGHT, width=90)
         self.list.InsertColumn(4, "Pagam.", wx.LIST_FORMAT_RIGHT, width=90)
         
-        for c in customers:
-            index = self.list.InsertStringItem(sys.maxint, c[0])
-            self.list.SetStringItem(index, 1, c[1])
-            self.list.SetStringItem(index, 2, c[2])
-            self.list.SetStringItem(index, 3, str(c[3]))
-            self.list.SetStringItem(index, 4, str(c[4]))
-            if c[4] < 0 or c[3] <= datetime.date.today():
+        #customers = self.getProblematicCustomers()
+        item = customers.items()
+        for key, data in item:
+            index = self.list.InsertStringItem(sys.maxint, data[0])
+            self.list.SetStringItem(index, 1, data[1])
+            self.list.SetStringItem(index, 2, data[2])
+            self.list.SetStringItem(index, 3, str(data[3]))
+            self.list.SetStringItem(index, 4, str(data[4]))
+            self.list.SetItemData(index, key)
+            if data[4] < 0 or data[3] <= datetime.date.today():
                 self.list.SetItemTextColour(index, "red")
-            if c[4] > 0:
+            if data[4] > 0:
                 self.list.SetItemTextColour(index, "green")
 
         self.list.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OpenUser)
