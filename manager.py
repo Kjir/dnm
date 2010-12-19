@@ -16,6 +16,12 @@ customers = {
         3: ("Stéphane", "Bisinger", "Viale XXV Aprile, 19", datetime.date(2011, 11, 21), -30.00),
         4: ("Arnaldo", "Lomuti", "Via Fadèn Telcul, 24", datetime.date(2011, 10, 23), 50.00),
         }
+customers2 = {
+        1: ("Michele2", "Munno", "Via L. Battiferri, 15", datetime.date(2010, 10, 10), 0.00),
+        2: ("Alice2", "Devecchi", "Via L. Battiferri, 15", datetime.date(2011, 10, 10), 0.00),
+        3: ("Stéphane2", "Bisinger", "Viale XXV Aprile, 19", datetime.date(2011, 11, 21), -30.00),
+        4: ("Arnaldo2", "Lomuti", "Via Fadèn Telcul, 24", datetime.date(2011, 10, 23), 50.00),
+        }
 class AWListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin, ColumnSorterMixin):
     def __init__(self, parent, id, style):
         wx.ListCtrl.__init__(self, parent, id, style=style)
@@ -66,7 +72,6 @@ class MainWindow(wx.Frame):
 
         vbox.Add((-1,10))
         hbox2 = wx.BoxSizer(wx.HORIZONTAL)
-        #hbox2.Add(wx.StaticText(self.panel, -1, "Hilo"), 0)
         hbox2.Add(wx.StaticLine(self.panel), 1)
         vbox.Add(hbox2, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 10)
 
@@ -78,18 +83,7 @@ class MainWindow(wx.Frame):
         self.list.InsertColumn(4, "Pagam.", wx.LIST_FORMAT_RIGHT, width=90)
         
         #customers = self.getProblematicCustomers()
-        item = customers.items()
-        for key, data in item:
-            index = self.list.InsertStringItem(sys.maxint, data[0])
-            self.list.SetStringItem(index, 1, data[1])
-            self.list.SetStringItem(index, 2, data[2])
-            self.list.SetStringItem(index, 3, str(data[3]))
-            self.list.SetStringItem(index, 4, str(data[4]))
-            self.list.SetItemData(index, key)
-            if data[4] < 0 or data[3] <= datetime.date.today():
-                self.list.SetItemTextColour(index, "red")
-            if data[4] > 0:
-                self.list.SetItemTextColour(index, "green")
+        self.showCustomers(customers)
 
         self.list.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.OpenUser)
         vbox.Add(self.list, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.TOP, 10)
@@ -129,12 +123,28 @@ class MainWindow(wx.Frame):
             self.ic = customer.InsertCustomer(self)
 
     def OnType(self, event):
-        pass
+        self.list.DeleteAllItems()
+        self.showCustomers(customers2)
 
     def OpenUser(self, event):
         d = wx.MessageDialog(self, self.list.GetItem(self.list.GetFocusedItem(), 1).GetText() + " Yeah", "Ducato Nuoto Manager", wx.OK)
         d.ShowModal()
         d.Destroy()
+
+    def showCustomers(self, dict):
+        item = dict.items()
+        for key, data in item:
+            index = self.list.InsertStringItem(sys.maxint, data[0])
+            self.list.SetStringItem(index, 1, data[1])
+            self.list.SetStringItem(index, 2, data[2])
+            self.list.SetStringItem(index, 3, str(data[3]))
+            self.list.SetStringItem(index, 4, str(data[4]))
+            self.list.SetItemData(index, key)
+            if data[4] < 0 or data[3] <= datetime.date.today():
+                self.list.SetItemTextColour(index, "red")
+            if data[4] > 0:
+                self.list.SetItemTextColour(index, "green")
+
 
 app = wx.App(False)
 frame = MainWindow(None, "Ducato Nuoto Manager")
