@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import wx
+import wx.lib.agw.aui as aui
 from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
 from wx.lib.mixins.listctrl import ColumnSorterMixin
 import os
@@ -63,7 +64,14 @@ class MainWindow(wx.Frame):
         self.SetMenuBar(menuBar)  # Adding the MenuBar to the Frame content.
 
         # Create the search box
-        self.panel = wx.Panel(self, -1)
+        self.nb = aui.AuiNotebook(self, style=aui.AUI_NB_TOP
+                | aui.AUI_NB_TAB_MOVE | aui.AUI_NB_SCROLL_BUTTONS | aui.AUI_NB_CLOSE_ON_ACTIVE_TAB
+                | aui.AUI_NB_MIDDLE_CLICK_CLOSE | aui.AUI_NB_DRAW_DND_TAB | aui.AUI_NB_HIDE_ON_SINGLE_TAB
+                | aui.AUI_NB_WINDOWLIST_BUTTON)
+        self.panel = wx.Panel(self.nb, -1)
+        self.nb.AddPage(self.panel, "Gestione clienti")
+        self.nb.SetArtProvider(aui.ChromeTabArt())
+
         vbox = wx.BoxSizer(wx.VERTICAL)
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
         self.sb = wx.SearchCtrl(self.panel, -1)
@@ -133,9 +141,8 @@ class MainWindow(wx.Frame):
 
     def OpenUser(self, event):
         index = self.list.GetFocusedItem()
-        d = wx.MessageDialog(self, str(self.list.GetItem(index, 0).GetData()) + " " + str(self.list.GetItem(index, 1).GetData()), "Ducato Nuoto Manager", wx.OK)
-        d.ShowModal()
-        d.Destroy()
+        up = wx.Panel(self.nb)
+        self.nb.AddPage(up, self.list.GetItem(index, 0).GetText() + " " + self.list.GetItem(index, 1).GetText(), True)
 
     def getProblematicCustomers(self):
         return customers
