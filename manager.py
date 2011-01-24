@@ -117,7 +117,12 @@ class MainWindow(wx.Frame):
             self.filename = d.GetFilename()
             self.dirname = d.GetDirectory()
             # Do something with the file
-            a = wx.MessageDialog(self, os.path.join(self.dirname, self.filename), "File importato", wx.OK)
+            import excel
+            data = excel.importfile(os.path.join(self.dirname, self.filename))
+            conn = tools.getConnection("dnmdb")
+            (inserted, skipped) = conn.insertCustomers(data)
+            del conn
+            a = wx.MessageDialog(self, "Importati %d utenti da %s. %d ignorati." % (inserted, self.filename, skipped), "File importato", wx.OK)
             a.ShowModal()
             a.Destroy()
         d.Destroy()
