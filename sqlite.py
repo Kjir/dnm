@@ -17,6 +17,12 @@ class Connection:
                 self.cur.execute("INSERT INTO customers VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", d)
                 inserted += 1
             except sqlite3.IntegrityError:
+                print "Failed insert:"
+                print d
+                skipped += 1
+            except:
+                print "Generic fail:"
+                print d
                 skipped += 1
         self.conn.commit()
         return (inserted, skipped)
