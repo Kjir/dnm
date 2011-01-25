@@ -42,6 +42,8 @@ class MainWindow(wx.Frame):
         #self.control = wx.TextCtrl(self, style=wx.TE_MULTILINE)
         self.CreateStatusBar() # A Statusbar in the bottom of the window
 
+        self.dbname = "dnmdb"
+
         # Setting up the menu.
         filemenu= wx.Menu()
 
@@ -116,15 +118,15 @@ class MainWindow(wx.Frame):
         if d.ShowModal() == wx.ID_OK:
             self.filename = d.GetFilename()
             self.dirname = d.GetDirectory()
-            # Do something with the file
             import excel
             data = excel.importfile(os.path.join(self.dirname, self.filename))
-            conn = tools.getConnection("dnmdb")
+            conn = tools.getConnection(self.dbname)
             (inserted, skipped) = conn.insertCustomers(data)
             del conn
-            a = wx.MessageDialog(self, "Importati %d utenti da %s. %d ignorati." % (inserted, self.filename, skipped), "File importato", wx.OK)
+            a = wx.MessageDialog(self, "Importati %d utenti da %s, %d ignorati." % (inserted, self.filename, skipped), "File importato", wx.OK)
             a.ShowModal()
             a.Destroy()
+            self.OnType(None)
         d.Destroy()
 
     def AddCustomer(self, event):
@@ -151,10 +153,12 @@ class MainWindow(wx.Frame):
         self.nb.AddPage(up, self.list.GetItem(index, 0).GetText() + " " + self.list.GetItem(index, 1).GetText(), True)
 
     def getProblematicCustomers(self):
-        return customers
+        conn = tools.getConnection(self.dbname)
+        return conn.getProblematicCustomers()
 
     def findCustomers(self, hint):
-        return customers2
+        conn = tools.getConnection(self.dbname)
+        return conn.findCustomer(hint)
 
     def showCustomers(self, dict):
         self.list.itemDataMap = dict
@@ -166,8 +170,11 @@ class MainWindow(wx.Frame):
             self.list.SetStringItem(index, 3, str(data[3]))
             self.list.SetStringItem(index, 4, str(data[4]))
             self.list.SetItemData(index, key)
-            if data[3] <= datetime.date.today():
-                self.list.SetItemBackgroundColour(index, "orange")
+            try:
+                if data[3] is None or datetime.datetime.strptime(data[3], "%Y-%m-%d") <= datetime.datetime.today():
+                    self.list.SetItemBackgroundColour(index, "orange")
+            except ValueError, e:
+                print e
             if data[4] < 0:
                 self.list.SetItemBackgroundColour(index, "red")
             if data[4] > 0:
