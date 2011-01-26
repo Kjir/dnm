@@ -42,8 +42,6 @@ class MainWindow(wx.Frame):
         #self.control = wx.TextCtrl(self, style=wx.TE_MULTILINE)
         self.CreateStatusBar() # A Statusbar in the bottom of the window
 
-        self.dbname = "dnmdb"
-
         # Setting up the menu.
         filemenu= wx.Menu()
 
@@ -89,11 +87,12 @@ class MainWindow(wx.Frame):
         vbox.Add(hbox2, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 10)
 
         self.list = AWListCtrl(self.panel, -1, style=wx.LC_REPORT | wx.LC_HRULES)
-        self.list.InsertColumn(0, "Nome", width=140)
-        self.list.InsertColumn(1, "Cognome", width=140)
-        self.list.InsertColumn(2, "Indirizzo", width=200)
-        self.list.InsertColumn(3, "Cert.Med.", wx.LIST_FORMAT_RIGHT, width=90)
-        self.list.InsertColumn(4, "Pagam.", wx.LIST_FORMAT_RIGHT, width=90)
+        self.list.InsertColumn(0, "Id", width=45)
+        self.list.InsertColumn(1, "Nome", width=140)
+        self.list.InsertColumn(2, "Cognome", width=140)
+        self.list.InsertColumn(3, "Indirizzo", width=200)
+        self.list.InsertColumn(4, "Cert.Med.", wx.LIST_FORMAT_RIGHT, width=90)
+        self.list.InsertColumn(5, "Pagam.", wx.LIST_FORMAT_RIGHT, width=90)
         
         self.showCustomers(self.getProblematicCustomers())
 
@@ -120,7 +119,7 @@ class MainWindow(wx.Frame):
             self.dirname = d.GetDirectory()
             import excel
             data = excel.importfile(os.path.join(self.dirname, self.filename))
-            conn = tools.getConnection(self.dbname)
+            conn = tools.getConnection()
             (inserted, skipped) = conn.insertCustomers(data)
             del conn
             a = wx.MessageDialog(self, "Importati %d utenti da %s, %d ignorati." % (inserted, self.filename, skipped), "File importato", wx.OK)
@@ -149,42 +148,44 @@ class MainWindow(wx.Frame):
 
     def OpenUser(self, event):
         index = self.list.GetFocusedItem()
-        up = wx.Panel(self.nb)
-        self.nb.AddPage(up, self.list.GetItem(index, 0).GetText() + " " + self.list.GetItem(index, 1).GetText(), True)
+        up = customer.CustomerForm(self.nb, 8, 4, 3, 4, int(self.list.GetItem(index, 0).GetText()))
+        self.nb.AddPage(up, self.list.GetItem(index, 1).GetText() + " " + self.list.GetItem(index, 2).GetText(), True)
 
     def getProblematicCustomers(self):
-        conn = tools.getConnection(self.dbname)
+        conn = tools.getConnection()
         return conn.getProblematicCustomers()
 
     def findCustomers(self, hint):
-        conn = tools.getConnection(self.dbname)
+        conn = tools.getConnection()
         return conn.findCustomer(hint)
 
     def showCustomers(self, dict):
         self.list.itemDataMap = dict
         item = dict.items()
         for key, data in item:
-            index = self.list.InsertStringItem(sys.maxint, data[0])
+            index = self.list.InsertStringItem(sys.maxint, str(data[0]))
             self.list.SetStringItem(index, 1, data[1])
             self.list.SetStringItem(index, 2, data[2])
-            self.list.SetStringItem(index, 3, str(data[3]))
+            self.list.SetStringItem(index, 3, data[3])
             self.list.SetStringItem(index, 4, str(data[4]))
+            self.list.SetStringItem(index, 5, str(data[5]))
             self.list.SetItemData(index, key)
             try:
-                if data[3] is None or datetime.datetime.strptime(data[3], "%Y-%m-%d") <= datetime.datetime.today():
+                if data[4] is None or datetime.datetime.strptime(data[4], "%Y-%m-%d") <= datetime.datetime.today():
                     self.list.SetItemBackgroundColour(index, "orange")
             except ValueError, e:
                 print e
-            if data[4] < 0:
+            if data[5] < 0:
                 self.list.SetItemBackgroundColour(index, "red")
-            if data[4] > 0:
+            if data[5] > 0:
                 self.list.SetItemBackgroundColour(index, "green")
 
 
-conn = tools.getConnection("dnmdb")
+tools.setDefaultConnectionName("dnmdb")
+conn = tools.getConnection()
 conn.createTables()
 del conn
-tools.closeConnection("dnmdb")
+tools.closeConnection()
 app = wx.App(False)
 frame = MainWindow(None, "Ducato Nuoto Manager")
 app.MainLoop()

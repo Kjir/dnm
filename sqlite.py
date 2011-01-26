@@ -33,14 +33,20 @@ class Connection:
 
     def getProblematicCustomers(self):
         '''Find the customers who have something not right'''
-        self.cur.execute("SELECT name, lastname, address, certificatedate, 0 FROM customers WHERE (certificatedate < date('now') OR certificatedate IS NULL) AND membershiptype != 'cus' AND membershipyear >= strftime('%Y', 'now');")
+        self.cur.execute("SELECT id, name, lastname, address, certificatedate, 0 FROM customers WHERE (certificatedate < date('now') OR certificatedate IS NULL) AND membershiptype != 'cus' AND membershipyear >= strftime('%Y', 'now');")
         res = self.cur.fetchall()
         return dict(zip( range(1, len(res)+1), res))
 
     def findCustomer(self, hint):
         '''Find customers based on the hint'''
-        self.cur.execute("SELECT name, lastname, address, certificatedate, 0 FROM customers WHERE name LIKE ? || '%' OR lastname LIKE ? || '%' OR address LIKE '%' || ? || '%' OR membernum LIKE ? || '%'", [hint for x in range(4)])
+        self.cur.execute("SELECT id, name, lastname, address, certificatedate, 0 FROM customers WHERE name LIKE ? || '%' OR lastname LIKE ? || '%' OR address LIKE '%' || ? || '%' OR membernum LIKE ? || '%'", [hint for x in range(4)])
         res = self.cur.fetchall()
+        return dict(zip( range(1, len(res)+1), res))
+
+    def getCustomerById(self, id):
+        '''Retrevie info about a user from id'''
+        self.cur.execute("SELECT * FROM customers WHERE id = ?", [id,])
+        return self.cur.fetchone()
         return dict(zip( range(1, len(res)+1), res))
 
     def __del__(self):
