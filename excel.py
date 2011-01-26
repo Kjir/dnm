@@ -116,4 +116,5 @@ def convert_birth_date(date):
     if len(d) != 3:
         print "Data incompleta: " + date
     d1 = [x.strip() for x in d]
+    d1.reverse()
     return "-".join(d1)
