@@ -129,14 +129,8 @@ class MainWindow(wx.Frame):
         d.Destroy()
 
     def AddCustomer(self, event):
-        try:
-            # Is there a better way to do this??
-            #self.ic.SetFocus()
-            #self.ic.Raise()
-            self.ic.Show(False)
-            self.ic.Show(True)
-        except AttributeError:
-            self.ic = customer.InsertCustomer(self)
+        up = customer.CustomerForm(self.nb, 8, 4, 3, 4)
+        self.nb.AddPage(up, "Nuovo cliente", True)
 
     def OnType(self, event):
         if len(self.sb.GetValue()) > 1:
