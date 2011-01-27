@@ -47,9 +47,10 @@ class CustomerForm(wx.Panel):
                     input.append(wx.TextCtrl(self, -1))
 
             else:
-                input.append(wx.TextCtrl(self, -1))
                 if data is not None:
-                    input[i].SetValue(str(data[i+1]))
+                    input.append(wx.StaticText(self, -1, unicode(data[i+1])))
+                else:
+                    input.append(wx.TextCtrl(self, -1))
 
         labels.append(wx.StaticText(self, -1, "Numero tessera:"))
         labels.append(wx.StaticText(self, -1, "Nome:"))
