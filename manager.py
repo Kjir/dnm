@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import wxversion
+wxversion.select('2.8')
 import wx
 import wx.lib.agw.aui as aui
 from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
@@ -12,26 +14,11 @@ import datetime
 import customer
 import tools
 
-customers = {
-        1: ("Michele", "Munno", "Via L. Battiferri, 15", datetime.date(2010, 10, 10), 0.00),
-        2: ("Alice", "Devecchi", "Via L. Battiferri, 15", datetime.date(2011, 10, 10), 0.00),
-        3: (u'Stéphane', "Bisinger", "Viale XXV Aprile, 19", datetime.date(2011, 11, 21), -30.00),
-        4: ("Arnaldo", "Lomuti", u'Via Fadèn Telcul, 24', datetime.date(2011, 10, 23), 50.00),
-        5: ("Michael", "Micheli", "Via Trasanni, 45", datetime.date(2011, 9, 4), 10.00),
-        6: ("Andrea", "Zanchetta", "Via Buonconte da Montefeltro, 11", datetime.date(2011, 9, 15), 1.00),
-        }
-customers2 = {
-        1: ("ZMichele2", "Munno", "Via L. Battiferri, 15", datetime.date(2010, 10, 10), 0.00),
-        2: ("Alice2", "Devecchi", "Via L. Battiferri, 15", datetime.date(2011, 10, 10), 0.00),
-        3: (u'Stéphane2', "Bisinger", "Viale XXV Aprile, 19", datetime.date(2011, 11, 21), -30.00),
-        4: ("Arnaldo2", "Lomuti", u'Via Fadèn Telcul, 24', datetime.date(2011, 10, 23), 50.00),
-        }
 class AWListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin, ColumnSorterMixin):
     def __init__(self, parent, id, style):
         wx.ListCtrl.__init__(self, parent, id, style=style)
         ListCtrlAutoWidthMixin.__init__(self)
         ColumnSorterMixin.__init__(self, 5)
-        self.itemDataMap = customers
 
     def GetListCtrl(self):
         return self

@@ -8,6 +8,19 @@ class Connection:
     def createTables(self):
         f = open("sql/create_customers.sql", 'r')
         self.cur.execute(f.read())
+        f.close()
+        f = open("sql/create_provinces.sql", 'r')
+        try:
+            self.cur.executescript(f.read())
+        except sqlite3.IntegrityError:
+            pass
+        f.close()
+        f = open("sql/create_associations.sql", 'r')
+        try:
+            self.cur.executescript(f.read())
+        except sqlite3.IntegrityError:
+            pass
+        f.close()
 
     def insertCustomers(self, data):
         inserted = 0
@@ -16,10 +29,11 @@ class Connection:
             try:
                 self.cur.execute("INSERT INTO customers VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", d)
                 inserted += 1
-            except sqlite3.IntegrityError:
+            except sqlite3.IntegrityError as e:
                 print "Failed insert:"
                 print d
                 skipped += 1
+                print e
                 continue
             except Exception as e:
                 print "Generic fail:"

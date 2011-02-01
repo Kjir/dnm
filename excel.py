@@ -35,7 +35,7 @@ def convert_to_db(row):
     place = place.split("(") # Place of birth
     if len(place) == 1:
         r.append(place[0].strip()) # City of birth
-        r.append("NN") # Province of birth
+        r.append(None) # Province of birth
     else:
         r.append(place[0].strip()) # City of birth
         r.append( place[1].strip().rstrip(")").strip() ) # Province of birth
@@ -49,7 +49,7 @@ def convert_to_db(row):
     place = city.split("(")
     if len(place) == 1:
         r.append(place[0].strip()) # City
-        r.append("NN") # Province
+        r.append(None) # Province
     else:
         r.append(place[0].strip()) # City
         r.append( place[1].strip().rstrip(")").strip() ) # Province
