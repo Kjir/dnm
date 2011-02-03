@@ -5,23 +5,12 @@ import wxversion
 wxversion.select('2.8')
 import wx
 import wx.lib.agw.aui as aui
-from wx.lib.mixins.listctrl import ListCtrlAutoWidthMixin
-from wx.lib.mixins.listctrl import ColumnSorterMixin
 import os
 import sys
 import datetime
 
 import customer
 import tools
-
-class AWListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin, ColumnSorterMixin):
-    def __init__(self, parent, id, style):
-        wx.ListCtrl.__init__(self, parent, id, style=style)
-        ListCtrlAutoWidthMixin.__init__(self)
-        ColumnSorterMixin.__init__(self, 5)
-
-    def GetListCtrl(self):
-        return self
 
 class MainWindow(wx.Frame):
     def __init__(self, parent, title):
@@ -73,7 +62,7 @@ class MainWindow(wx.Frame):
         hbox2.Add(wx.StaticLine(self.panel), 1)
         vbox.Add(hbox2, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 10)
 
-        self.list = AWListCtrl(self.panel, -1, style=wx.LC_REPORT | wx.LC_HRULES)
+        self.list = tools.AWListCtrl(self.panel, -1, style=wx.LC_REPORT | wx.LC_HRULES)
         self.list.InsertColumn(0, "Id", width=45)
         self.list.InsertColumn(1, "Nome", width=140)
         self.list.InsertColumn(2, "Cognome", width=140)

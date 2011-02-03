@@ -28,6 +28,7 @@ class CustomerForm(wx.Panel):
         self.SetSizer(vbox)
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
 
+        # User data
         conn = tools.getConnection()
         data = conn.getCustomerById(cust_id) if cust_id is not None else None
         input = []
@@ -67,9 +68,10 @@ class CustomerForm(wx.Panel):
         labels.append(wx.StaticText(self, -1, "E-mail:"))
         labels.append(wx.StaticText(self, -1, "Data di scadenza certificato:"))
 
+        # Personal info
         sb1 = wx.StaticBox(self, -1, "Dati anagrifici:")
         hbox11 = wx.StaticBoxSizer(sb1, wx.HORIZONTAL)
-        hbox1.Add(hbox11, 1, wx.EXPAND)
+        hbox1.Add(hbox11, 2, wx.EXPAND)
 
         fgs11 = wx.FlexGridSizer(12, 4, vgap, hgap)
         for i in range(9) + [12, 13, 14]:
@@ -79,6 +81,7 @@ class CustomerForm(wx.Panel):
         fgs11.AddGrowableCol(3,1)
         hbox11.Add(fgs11, 1, wx.ALL | wx.EXPAND, 5)
 
+        # Membership information
         sb2 = wx.StaticBox(self, -1, "Dati sociali:")
         hbox12 = wx.StaticBoxSizer(sb2, wx.HORIZONTAL)
         hbox1.Add(hbox12, 1, wx.EXPAND)
@@ -91,11 +94,23 @@ class CustomerForm(wx.Panel):
         hbox12.Add(fgs12, 1, wx.ALL | wx.EXPAND, 5)
 
         vbox.Add(hbox1, 0, wx.EXPAND | wx.ALL, 15)
+
+        # Transactions
         sb = wx.StaticBox(self, -1,  "Transazioni:")
         vbox1 = wx.StaticBoxSizer(sb, wx.VERTICAL)
-        vbox1.Add(wx.StaticText(self, -1, "Prova"))
-        #vbox.Add(sb)
+        self.list = tools.AWListCtrl(self, -1, style=wx.LC_REPORT | wx.LC_HRULES)
+        self.list.InsertColumn(0, "Id", width=45)
+        self.list.InsertColumn(1, "Servizio/Prodotto", width=400)
+        self.list.InsertColumn(2, "Data", width=140)
+        self.list.InsertColumn(3, "Importo", wx.LIST_FORMAT_RIGHT, width=90)
+        self.list.InsertColumn(4, "Pagato", wx.LIST_FORMAT_RIGHT, width=90)
+        self.list.InsertColumn(5, "Saldo", wx.LIST_FORMAT_RIGHT, width=90)
+        vbox1.Add(self.list, 0, wx.EXPAND)
+
         vbox.Add(vbox1, 0, wx.EXPAND | wx.ALL, 15)
+
+        # Buttons
         buttonbox = wx.BoxSizer(wx.HORIZONTAL)
-        buttonbox.Add(wx.Button(self, wx.ID_EDIT, 'Modifica utente'))
-        vbox.Add(buttonbox)
+        buttonbox.Add(wx.Button(self, -1, 'Nuova transazione'), 1, wx.RIGHT, 5)
+        buttonbox.Add(wx.Button(self, wx.ID_EDIT, 'Modifica utente'), 1, wx.RIGHT, 5)
+        vbox.Add(buttonbox,0, wx.ALL, 15)
