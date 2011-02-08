@@ -76,6 +76,8 @@ class MainWindow(wx.Frame):
         vbox.Add(self.list, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.TOP, 10)
         self.panel.SetSizer(vbox)
 
+        self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.OnPaneChange)
+
         self.Center()
         self.Show(True)
 
@@ -115,6 +117,9 @@ class MainWindow(wx.Frame):
         if len(self.sb.GetValue()) == 0:
             self.list.DeleteAllItems()
             self.showCustomers(self.getProblematicCustomers())
+
+    def OnPaneChange(self, event):
+        self.Fit()
 
     def OpenUser(self, event):
         index = self.list.GetFocusedItem()
@@ -158,4 +163,6 @@ del conn
 tools.closeConnection()
 app = wx.App(False)
 frame = MainWindow(None, "Ducato Nuoto Manager")
+#import wx.lib.inspection
+#wx.lib.inspection.InspectionTool().Show()
 app.MainLoop()
