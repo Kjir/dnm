@@ -55,8 +55,12 @@ def convert_to_db(row):
         r.append( place[1].strip().rstrip(")").strip() ) # Province
     r.append(row[4] + " - " + row[6]) # Activity
     m = row[5].split(" ")
-    r.append(m[0]) # Member Type
-    r.append(m[1]) # Member Year
+    if len(m) < 2:
+        r.append(None)
+        r.append(None)
+    else:
+        r.append(m[0]) # Member Type
+        r.append(m[1]) # Member Year
     r.append(row[9]) # Telephone
     r.append(row[12]) # Mobile
     r.append(row[14]) # E-mail
