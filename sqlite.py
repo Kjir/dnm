@@ -59,7 +59,18 @@ class Connection:
 
     def getCustomerById(self, id):
         '''Retrevie info about a user from id'''
-        self.cur.execute("SELECT * FROM customers WHERE id = ?", [id,])
+        self.cur.execute(
+                """SELECT
+                    id, membernum, c.name, lastname, birthdate, birthplace,
+                    IFNULL(p.name, c.birthprovince) AS birthprovince, address,
+                    city, IFNULL(p2.name, c.province) AS province, activity,
+                    a.name AS membershiptype, membershipyear, telephone, mobile,
+                    email, certificatedate
+                 FROM customers AS c
+                 LEFT OUTER JOIN  associations AS a ON c.membershiptype = a.code
+                 LEFT OUTER JOIN provinces AS p ON p.code = UPPER(c.birthprovince)
+                 LEFT OUTER JOIN provinces AS p2 ON p2.code = UPPER(c.province)
+                 WHERE id = ?""", [id,])
         return self.cur.fetchone()
         return dict(zip( range(1, len(res)+1), res))
 
