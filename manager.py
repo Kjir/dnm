@@ -78,6 +78,9 @@ class MainWindow(wx.Frame):
 
         self.Bind(wx.EVT_COLLAPSIBLEPANE_CHANGED, self.OnPaneChange)
 
+        # Insert customer page for notebook
+        self.ins_cust = None
+
         self.Center()
         self.Show(True)
 
@@ -107,8 +110,11 @@ class MainWindow(wx.Frame):
         d.Destroy()
 
     def AddCustomer(self, event):
-        up = customer.CustomerForm(self.nb, 8, 4, 3, 4)
-        self.nb.AddPage(up, "Nuovo cliente", True)
+        if self.ins_cust is not None:
+            self.nb.SetSelection(self.nb.GetPageIndex(self.ins_cust))
+        else:
+            self.ins_cust = customer.CustomerForm(self.nb, 8, 4, 3, 4)
+            self.nb.AddPage(self.ins_cust, "Nuovo cliente", True)
 
     def OnType(self, event):
         if len(self.sb.GetValue()) > 1:
