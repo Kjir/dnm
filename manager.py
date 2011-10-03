@@ -111,10 +111,12 @@ class MainWindow(wx.Frame):
 
     def AddCustomer(self, event):
         if self.ins_cust is not None:
-            self.nb.SetSelection(self.nb.GetPageIndex(self.ins_cust))
-        else:
-            self.ins_cust = customer.CustomerForm(self.nb, 8, 4, 3, 4)
-            self.nb.AddPage(self.ins_cust, "Nuovo cliente", True)
+            idx = self.nb.GetPageIndex(self.ins_cust)
+            if idx <> -1:
+                self.nb.SetSelection(idx)
+                return
+        self.ins_cust = customer.InsertCustomerForm(self.nb)
+        self.nb.AddPage(self.ins_cust, "Nuovo cliente", True)
 
     def OnType(self, event):
         if len(self.sb.GetValue()) > 1:
@@ -129,7 +131,7 @@ class MainWindow(wx.Frame):
 
     def OpenUser(self, event):
         index = self.list.GetFocusedItem()
-        up = customer.CustomerForm(self.nb, 8, 4, 3, 4, int(self.list.GetItem(index, 0).GetText()))
+        up = customer.CustomerInfo(self.nb, 8, 4, 3, 4, int(self.list.GetItem(index, 0).GetText()))
         self.nb.AddPage(up, self.list.GetItem(index, 1).GetText() + " " + self.list.GetItem(index, 2).GetText(), True)
 
     def getProblematicCustomers(self):
